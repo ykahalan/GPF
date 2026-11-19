@@ -1,0 +1,8 @@
+numpy
+scipy
+pandas
+scikit-learn
+aeon>=1.0
+iisignature
+tsfresh  # only for the TSFresh baseline in baselines.py
+sktime   # only for the SFA (dictionary) baseline in baselines.py
