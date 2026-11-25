@@ -55,8 +55,9 @@ For the baselines, nine of the ten feature sets in `baselines.py` give feature m
 original baseline notebook (checked on BasicMotions, ERing and AtrialFibrillation). TSFresh differs on purpose: tsfresh's
 worker processes return the features in the order in which they finish, so the original code could put the training and
 test features in different column orders. `baselines.py` puts them in tsfresh's sequential order. With this order, the
-TSFresh accuracy equals the paper's on five of the eight datasets tested (BasicMotions, AtrialFibrillation, Epilepsy,
-HandMovementDirection and Libras).
+TSFresh accuracy equals the paper's on six of the eight datasets tested (BasicMotions, AtrialFibrillation, Epilepsy,
+HandMovementDirection, Libras and RacketSports). The paper's RacketSports value (0.875) was computed with this code: in
+the original run the training and test columns of that dataset were misaligned, which gave 0.250.
 
 ## License
 
