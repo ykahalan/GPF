@@ -51,6 +51,13 @@ Forest scores can differ slightly with other versions of scikit-learn, numpy or 
 datasets: with scikit-learn 1.9, numpy 2.3 and aeon 1.6, 8 of 10 datasets tested reproduced the paper's scores exactly,
 and the other two differed in the same way with the original notebooks.
 
+For the baselines, nine of the ten feature sets in `baselines.py` give feature matrices bit-identical to those of the
+original baseline notebook (checked on BasicMotions, ERing and AtrialFibrillation). TSFresh differs on purpose: tsfresh's
+worker processes return the features in the order in which they finish, so the original code could put the training and
+test features in different column orders. `baselines.py` puts them in tsfresh's sequential order. With this order, the
+TSFresh accuracy equals the paper's on five of the eight datasets tested (BasicMotions, AtrialFibrillation, Epilepsy,
+HandMovementDirection and Libras).
+
 ## License
 
 MIT (see `LICENSE`).

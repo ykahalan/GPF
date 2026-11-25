@@ -8,11 +8,25 @@ import pandas as pd
 import scipy.sparse as sp
 from aeon.transformations.collection.convolution_based import HydraTransformer, MiniRocket, MultiRocket, Rocket
 from aeon.transformations.collection.feature_based import Catch22, TSFresh
+from aeon.transformations.collection.feature_based._tsfresh import _from_collection_to_long
 from aeon.transformations.collection.interval_based import RandomIntervals
 from aeon.transformations.collection.shapelet_based import RandomDilatedShapeletTransform, RandomShapeletTransform
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.feature_selection import chi2
 from sklearn.impute import SimpleImputer
+
+
+class OrderedTSFresh(TSFresh):
+    """aeon's TSFresh with a fixed column order. tsfresh's worker processes return the features in the order they finish,
+    so the train and test columns can be misaligned; here they follow tsfresh's sequential order (channels in tsfresh's
+    sort order, then each channel's features in calculator order, as in aeon's `names`)."""
+
+    def _transform(self, X, y=None):
+        from tsfresh import extract_features
+        F = extract_features(_from_collection_to_long(X), column_id="index", column_value="value", column_kind="column",
+                             column_sort="time_index", **self.default_fc_parameters_)
+        kinds = sorted(f"dim_{c}" for c in range(len(X[0])))
+        return F[[k + n[len("dim_0"):] for k in kinds for n in self.names]].to_numpy()
 
 
 class SFA:
@@ -57,7 +71,7 @@ FACTORIES = {
     "MiniRocket": lambda T: MiniRocket(n_kernels=1_000, random_state=42),
     "MultiRocket": lambda T: MultiRocket(n_kernels=1_000, random_state=42),
     "Hydra": lambda T: HydraTransformer(n_kernels=8, n_groups=64, random_state=42),
-    "TSFresh": lambda T: TSFresh(default_fc_parameters="comprehensive", n_jobs=-1, show_warnings=False),
+    "TSFresh": lambda T: OrderedTSFresh(default_fc_parameters="comprehensive", n_jobs=-1, show_warnings=False),
     "Shapelet": lambda T: RandomShapeletTransform(n_shapelet_samples=10_000, max_shapelets=None, remove_self_similar=True,
                                                   n_jobs=-1, random_state=42),
     "RDST": lambda T: RandomDilatedShapeletTransform(max_shapelets=10_000, proba_normalization=0.8, n_jobs=-1, random_state=42),
